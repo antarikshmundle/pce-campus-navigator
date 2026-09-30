@@ -1,0 +1,163 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+* {
+  box-sizing: border-box;
+}
+
+html, body, #root {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  font-family: 'Inter', sans-serif;
+  background: #FAFAF8;
+  color: #0F1B3D;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+:focus-visible {
+  outline: 2px solid #F2A93B;
+  outline-offset: 2px;
+}
+
+/* New user app: focus ring uses the locked Amber token (#FFB000).
+   The legacy rule above still applies to admin. */
+.app-root :focus-visible {
+  outline-color: theme('colors.accent.DEFAULT');
+}
+
+@layer utilities {
+  /* Full viewport height; `dvh` tracks mobile browser toolbars, `vh` is the fallback. */
+  .h-app {
+    height: 100vh;
+    height: 100dvh;
+  }
+  /* Horizontal chip rows: scrollable without a visible scrollbar. */
+  .scrollbar-none {
+    scrollbar-width: none;
+  }
+  .scrollbar-none::-webkit-scrollbar {
+    display: none;
+  }
+  .pb-safe {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+  .tap-transparent {
+    -webkit-tap-highlight-color: transparent;
+  }
+}
+
+/* Campus markers on the Google map (features/map/google/markers.js).
+   The map container carries data-map-type and data-labels. Centred markers
+   are shifted down half their height: advanced markers anchor bottom-centre. */
+@layer components {
+  .map-place {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    transform: translateY(50%);
+    cursor: pointer;
+  }
+  .map-place__disc {
+    display: flex;
+    height: 28px;
+    width: 28px;
+    align-items: center;
+    justify-content: center;
+    border-radius: theme('borderRadius.pill');
+    background: theme('colors.surface.DEFAULT');
+    box-shadow: theme('boxShadow.pin');
+  }
+  .map-place--external .map-place__disc {
+    border: 2px solid theme('colors.accent.dark');
+    border-radius: theme('borderRadius.control');
+  }
+  .map-place--dimmed {
+    opacity: 0.35;
+  }
+  .map-place__label {
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    display: none;
+    width: max-content;
+    max-width: 9rem;
+    margin-top: 3px;
+    transform: translateX(-50%);
+    text-align: center;
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 1.25;
+    color: theme('colors.fg.DEFAULT');
+    text-shadow:
+      0 0 2px theme('colors.surface.DEFAULT'),
+      0 0 2px theme('colors.surface.DEFAULT'),
+      0 0 3px theme('colors.surface.DEFAULT');
+    pointer-events: none;
+  }
+  [data-labels='true'] .map-place__label {
+    display: block;
+  }
+  .map-cluster {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transform: translateY(50%);
+    border: 3px solid theme('colors.surface.DEFAULT');
+    border-radius: theme('borderRadius.pill');
+    background: theme('colors.navy.DEFAULT');
+    box-shadow: theme('boxShadow.pin');
+    color: theme('colors.surface.DEFAULT');
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+  }
+  .map-cluster--sm { height: 34px; width: 34px; }
+  .map-cluster--md { height: 40px; width: 40px; }
+  .map-cluster--lg { height: 48px; width: 48px; }
+  .map-user {
+    height: 20px;
+    width: 20px;
+    transform: translateY(50%);
+    border: 3px solid theme('colors.surface.DEFAULT');
+    border-radius: theme('borderRadius.pill');
+    background: theme('colors.info');
+    box-shadow: theme('boxShadow.pin');
+  }
+  .map-origin {
+    height: 18px;
+    width: 18px;
+    transform: translateY(50%);
+    border: 4px solid theme('colors.navy.700');
+    border-radius: theme('borderRadius.pill');
+    background: theme('colors.surface.DEFAULT');
+  }
+
+  /* Satellite: imagery is busy and dark, so markers get a navy ring and
+     labels a solid pill instead of a halo. */
+  [data-map-type='satellite'] .map-place__disc {
+    box-shadow: 0 0 0 2px theme('colors.navy.DEFAULT'), 0 2px 8px rgba(0, 0, 0, 0.45);
+  }
+  [data-map-type='satellite'] .map-place__label {
+    padding: 2px 7px;
+    border-radius: theme('borderRadius.pill');
+    background: theme('colors.surface.DEFAULT');
+    box-shadow: theme('boxShadow.card');
+    text-shadow: none;
+  }
+  [data-map-type='satellite'] .map-cluster,
+  [data-map-type='satellite'] .map-user {
+    box-shadow: 0 0 0 2px theme('colors.navy.DEFAULT'), 0 2px 8px rgba(0, 0, 0, 0.45);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}

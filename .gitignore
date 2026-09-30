@@ -1,0 +1,19 @@
+backups/
+
+# Secrets / local config
+.env
+.env.*
+!.env.example
+.env.local
+.env.*.local
+backend/.env
+frontend/.env.local
+frontend/.env.*.local
+
+# Dependencies / build output (reproducible from package-lock.json and requirements.txt)
+node_modules/
+frontend/dist/
+backend/venv/
+.venv/
+__pycache__/
+*.pyc

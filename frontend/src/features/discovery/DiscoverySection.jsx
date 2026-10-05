@@ -1,7 +1,7 @@
 /** Titled block for discovery lists: heading, optional count/caption/action, content. */
 export function DiscoverySection({ title, count, countNoun = 'places', caption, action, headingId, children }) {
   return (
-    <section className="pb-4" aria-labelledby={headingId}>
+    <section className="pb-4 max-md:pb-3" aria-labelledby={headingId}>
       <header className="flex min-h-11 items-center justify-between gap-2 px-4 pb-1">
         <h2 id={headingId} className="text-title text-fg">
           {title}

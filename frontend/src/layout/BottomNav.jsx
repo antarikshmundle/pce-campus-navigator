@@ -10,7 +10,7 @@ export function BottomNav({ className }) {
       aria-label="Primary"
       className={cn('border-t border-line bg-surface pb-safe', className)}
     >
-      <ul className="mx-auto flex h-nav max-w-md items-stretch">
+      <ul className="mx-auto flex h-nav max-w-md items-stretch max-md:h-14">
         {NAV_ITEMS.map((item) => {
           const { to, label, icon: Icon } = item
           const isActive = isNavItemActive(item, pathname)
@@ -19,7 +19,7 @@ export function BottomNav({ className }) {
               <Link
                 to={to}
                 aria-current={isActive ? 'page' : undefined}
-                className="tap-transparent group flex h-full flex-col items-center justify-center gap-1"
+                className="tap-transparent group flex h-full flex-col items-center justify-center gap-1 max-md:gap-0.5"
               >
                 <span
                   className={cn(

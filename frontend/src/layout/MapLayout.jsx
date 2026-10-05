@@ -17,7 +17,7 @@ import { useCampusAssistant } from '../features/assistant/useCampusAssistant.js'
 import { BottomSheet } from '../ui/BottomSheet.jsx'
 import { Notice } from '../ui/Notice.jsx'
 import { useGeolocation } from '../hooks/useGeolocation.js'
-import { useIsDesktop } from '../hooks/useMediaQuery.js'
+import { useIsDesktop, useIsPhone } from '../hooks/useMediaQuery.js'
 import { distanceMeters } from '../utils/geo.js'
 import { layout } from '../design/tokens.js'
 import { DEFAULT_MAP_VIEW, MapLayoutContext } from './mapLayoutContext.js'
@@ -68,6 +68,7 @@ function MapLayoutFrame() {
   const { locations, categories, status: dataStatus, reload: reloadData } = useCampusData()
   const map = useCampusMap()
   const isDesktop = useIsDesktop()
+  const isPhone = useIsPhone()
   const navigate = useNavigate()
   const { pathname } = useLocation()
   const isExplore = Boolean(useMatch({ path: '/', end: true }))
@@ -203,6 +204,8 @@ function MapLayoutFrame() {
     [sheetSnap, showNotice, geo, origin, discovery, mapOutlierIds],
   )
 
+  // Height of the floating search + chips on mobile (more compact on phones).
+  const topOverlay = isPhone ? layout.phoneTopOverlay : layout.mobileTopOverlay
   const overlay = view.overlayInsets ?? { top: 0, left: 0 }
   let insets
   if (immersive) {
@@ -213,7 +216,7 @@ function MapLayoutFrame() {
     insets = isDesktop
       ? DESKTOP_INSETS
       : {
-          top: isExplore ? layout.mobileTopOverlay : MOBILE_TOP_COMPACT,
+          top: isExplore ? topOverlay : MOBILE_TOP_COMPACT,
           right: CONTROLS_INSET,
           bottom: 0, // the map already ends above the peeked sheet
           left: 8,
@@ -222,7 +225,7 @@ function MapLayoutFrame() {
   const mobileTop = `max(1rem, env(safe-area-inset-top))`
   const noticeTop = immersive
     ? `${overlay.top + 8}px`
-    : `calc(max(1rem, env(safe-area-inset-top)) + ${isExplore ? layout.mobileTopOverlay - 12 : 0}px)`
+    : `calc(max(1rem, env(safe-area-inset-top)) + ${isExplore ? topOverlay - 12 : 0}px)`
 
   return (
     <MapLayoutContext.Provider value={context}>
@@ -260,7 +263,7 @@ function MapLayoutFrame() {
               value={map.mapType}
               onChange={map.setMapType}
               className="absolute left-4 z-overlay"
-              style={{ top: `calc(${mobileTop} + ${isExplore ? layout.mobileTopOverlay - 4 : 0}px)` }}
+              style={{ top: `calc(${mobileTop} + ${isExplore ? topOverlay - 4 : 0}px)` }}
             />
           ))}
 
@@ -324,7 +327,7 @@ function MapLayoutFrame() {
         >
           {/* Immersive on mobile: the top-left corner belongs to the screen's header. */}
           {immersive && !isDesktop && map.mode !== 'fallback' && (
-            <MapTypeToggle variant="compact" value={map.mapType} onChange={map.setMapType} />
+            <MapTypeToggle variant="compact" value={map.mapType} onChange={map.setMapType} className="relative" />
           )}
           <MapControls
             canZoomIn={map.canZoomIn}
@@ -348,6 +351,7 @@ function MapLayoutFrame() {
             snap={sheetSnap}
             onSnapChange={setSheetSnap}
             peekHeight={view.peekHeight}
+            peekScroll={view.peekScroll}
             scrollKey={pathname}
             className="absolute inset-x-0 bottom-0 z-sheet h-[calc(100%_-_88px_-_env(safe-area-inset-top))]"
           >

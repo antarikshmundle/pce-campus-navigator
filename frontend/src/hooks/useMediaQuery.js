@@ -16,3 +16,4 @@ export function useMediaQuery(query) {
 }
 
 export const useIsDesktop = () => useMediaQuery(`(min-width: ${layout.lgBreakpoint}px)`)
+export const useIsPhone = () => useMediaQuery(`(max-width: ${layout.mdBreakpoint - 1}px)`)

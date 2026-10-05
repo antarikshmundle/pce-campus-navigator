@@ -55,7 +55,7 @@ export const SearchBar = forwardRef(function SearchBar(
         onSubmit?.(value)
       }}
       className={cn(
-        'flex h-14 items-center gap-1 rounded-card bg-surface pl-4 pr-1.5 shadow-float',
+        'flex h-14 items-center gap-1 rounded-card bg-surface pl-4 pr-1.5 shadow-float max-md:h-[50px] max-md:pl-3.5 max-md:pr-1',
         'ring-accent/60 transition-shadow focus-within:ring-2',
         className,
       )}

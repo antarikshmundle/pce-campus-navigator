@@ -46,7 +46,7 @@ export function PlaceRow({
     <>
       <span
         className={cn(
-          'flex h-11 w-11 shrink-0 items-center justify-center rounded-field',
+          'flex h-11 w-11 shrink-0 items-center justify-center rounded-field max-md:h-10 max-md:w-10',
           selected ? 'bg-navy text-accent' : 'bg-surface-alt text-navy',
         )}
       >
@@ -85,7 +85,7 @@ export function PlaceRow({
   )
 
   const className = cn(
-    'tap-transparent flex w-full min-h-11 cursor-pointer items-center gap-3 rounded-field px-3 py-2.5 text-left transition-colors',
+    'tap-transparent flex w-full min-h-11 cursor-pointer items-center gap-3 rounded-field px-3 py-2.5 text-left transition-colors max-md:gap-2.5 max-md:py-2',
     emphasised ? 'bg-accent-soft' : 'hover:bg-surface-alt',
   )
 
@@ -114,8 +114,8 @@ export function PlaceRow({
 
 export function PlaceRowSkeleton() {
   return (
-    <div className="flex items-center gap-3 px-3 py-2.5">
-      <Skeleton className="h-11 w-11 rounded-field" />
+    <div className="flex items-center gap-3 px-3 py-2.5 max-md:gap-2.5 max-md:py-2">
+      <Skeleton className="h-11 w-11 rounded-field max-md:h-10 max-md:w-10" />
       <div className="flex-1 space-y-2">
         <Skeleton className="h-3.5 w-2/5" />
         <Skeleton className="h-3 w-3/5" />

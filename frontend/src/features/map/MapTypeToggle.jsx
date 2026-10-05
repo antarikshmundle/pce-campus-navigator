@@ -21,7 +21,7 @@ export function MapTypeToggle({ value, onChange, variant = 'segmented', disabled
         label={next.id === 'satellite' ? 'Show satellite view' : 'Show map view'}
         onClick={() => onChange(next.id)}
         disabled={disabled}
-        className={className}
+        className={cn("max-md:h-10 max-md:w-10 max-md:after:absolute max-md:after:-inset-0.5 max-md:after:content-['']", className)}
         style={style}
       />
     )

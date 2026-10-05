@@ -15,7 +15,7 @@ export const AssistantFab = forwardRef(function AssistantFab({ onClick, expanded
       aria-expanded={expanded}
       aria-controls={expanded ? ASSISTANT_PANEL_ID : undefined}
       className={cn(
-        'tap-transparent flex h-12 items-center gap-2 rounded-pill bg-navy pl-3.5 pr-4 text-body-sm font-semibold text-white shadow-float transition-colors hover:bg-navy-800',
+        'tap-transparent flex h-12 items-center gap-2 rounded-pill bg-navy pl-3.5 pr-4 text-body-sm font-semibold text-white shadow-float transition-colors hover:bg-navy-800 max-md:h-11 max-md:gap-1.5 max-md:pl-3 max-md:pr-3.5',
         className,
       )}
     >

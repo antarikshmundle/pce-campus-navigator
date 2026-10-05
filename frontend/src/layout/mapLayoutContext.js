@@ -13,6 +13,7 @@ export const MapLayoutContext = createContext(null)
  *   overlayInsets  { top, left } px covered by the screen's floating UI
  *   onLocate       what the locate control does
  * peekHeight: mobile px below the map (sheet peek, or the immersive bottom card)
+ * peekScroll: the peeked sheet's content scrolls within the visible peek area
  *
  * Nearby: externalPlaces / selectedExternalKey (off-campus layer) and
  * scope 'area' (wider pan/zoom limits). userLocation, when set on a panel
@@ -23,6 +24,7 @@ export const DEFAULT_MAP_VIEW = {
   visibleIds: null,
   route: null,
   peekHeight: layout.mobileSheetPeek,
+  peekScroll: false,
   label: 'Places',
   chrome: 'panel',
   userLocation: null,
@@ -54,6 +56,7 @@ export function useMapView({
   visibleIds = null,
   route = null,
   peekHeight,
+  peekScroll = false,
   label,
   chrome = 'panel',
   userLocation = null,
@@ -70,6 +73,7 @@ export function useMapView({
       visibleIds,
       route,
       peekHeight: peekHeight ?? DEFAULT_MAP_VIEW.peekHeight,
+      peekScroll,
       label: label ?? DEFAULT_MAP_VIEW.label,
       chrome,
       userLocation,
@@ -79,5 +83,5 @@ export function useMapView({
       selectedExternalKey,
       scope,
     })
-  }, [setView, selectedId, visibleIds, route, peekHeight, label, chrome, userLocation, overlayInsets, onLocate, externalPlaces, selectedExternalKey, scope])
+  }, [setView, selectedId, visibleIds, route, peekHeight, peekScroll, label, chrome, userLocation, overlayInsets, onLocate, externalPlaces, selectedExternalKey, scope])
 }

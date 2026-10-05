@@ -102,6 +102,7 @@ export const layout = {
   bottomNavHeight: 64,
   railWidth: RAIL_WIDTH,
   lgBreakpoint: 1024, // matches Tailwind's default `lg`
+  mdBreakpoint: 768, // matches Tailwind's default `md`; below it = phone
 
   // Desktop: floating column (search, chips, panel) to the right of the rail.
   desktopPanelWidth: DESKTOP_PANEL_WIDTH,
@@ -111,6 +112,9 @@ export const layout = {
   // Mobile: floating search + chips at the top, sheet peek at the bottom.
   mobileTopOverlay: 128,
   mobileSheetPeek: 216,
+  // Phones (< md): compact search bar (50px) and chips (32px), tighter sheet.
+  phoneTopOverlay: 118,
+  phoneSheetPeek: 200,
 }
 
 const px = (n) => `${n}px`

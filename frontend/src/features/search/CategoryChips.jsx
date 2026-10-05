@@ -3,8 +3,10 @@ import { Chip } from '../../ui/Chip.jsx'
 import { getCategoryMeta } from '../locations/categoryMeta.js'
 import { cn } from '../../utils/cn.js'
 
-// Chips are 36px tall visually; this invisible extension gives a 44px touch target.
-const HIT_AREA = "relative after:absolute after:inset-x-0 after:-inset-y-1 after:content-['']"
+// Chips are 36px tall visually (32px on phones); this invisible extension
+// gives a 44px touch target either way.
+const HIT_AREA =
+  "relative after:absolute after:inset-x-0 after:-inset-y-1 after:content-[''] max-md:h-8 max-md:gap-1 max-md:px-3 max-md:after:-inset-y-1.5"
 
 /**
  * Horizontally scrolling category filter. `value` null = all.
@@ -15,7 +17,7 @@ export function CategoryChips({ categories, value, onChange, elevated = false, c
     <div
       role="toolbar"
       aria-label="Filter by category"
-      className={cn('scrollbar-none flex gap-2 overflow-x-auto', className)}
+      className={cn('scrollbar-none flex gap-2 overflow-x-auto max-md:gap-1.5', className)}
     >
       <Chip
         icon={LayoutGrid}

@@ -1,6 +1,6 @@
 import { useEffect, useMemo } from 'react'
-import { useNavigate, useSearchParams } from 'react-router-dom'
-import { ExternalLink, LocateFixed, Navigation } from 'lucide-react'
+import { useSearchParams } from 'react-router-dom'
+import { LocateFixed, Navigation } from 'lucide-react'
 import { useCampusData } from '../features/locations/CampusDataProvider.jsx'
 import { useCampusMap } from '../features/map/MapProvider.jsx'
 import { mapConfig } from '../features/map/mapConfig.js'
@@ -20,7 +20,8 @@ const ROUTE_PEEK = 340
 /**
  * /route?from=<id|me>&to=<id>[&alt=<n>] — route preview.
  * Real Google walking route when available (alt = chosen alternative),
- * otherwise a clearly labelled direct-line estimate. Start → /navigate.
+ * otherwise a clearly labelled direct-line estimate. Start hands the walk off
+ * to Google Maps (route.externalUrl) — there is no in-app turn-by-turn here.
  */
 export default function RoutePreviewScreen() {
   const [params, setParams] = useSearchParams()
@@ -30,7 +31,6 @@ export default function RoutePreviewScreen() {
   const { locations, getById } = useCampusData()
   const { origin, geo, mapOutlierIds } = useMapLayout()
   const { fitCoords, focusLocation } = useCampusMap()
-  const navigate = useNavigate()
   const goBack = useBackNavigation()
 
   // Places with an unverified (far off-campus) coordinate can't be routed.
@@ -47,7 +47,7 @@ export default function RoutePreviewScreen() {
   const destination = useMemo(() => place(to), [to, getById, mapOutlierIds])
   const destinationLoc = getById(Number(to))
 
-  const { status, result, key, retry } = useRoutePreview(originEndpoint, destination)
+  const { status, result, retry } = useRoutePreview(originEndpoint, destination)
   const routes = result?.routes ?? []
   const selected = routes[alt] ? alt : 0
   const route = routes[selected] ?? null
@@ -67,6 +67,7 @@ export default function RoutePreviewScreen() {
     selectedId: destinationLoc?.id ?? null,
     route: mapRoute,
     peekHeight: ROUTE_PEEK,
+    peekScroll: true,
     label: 'Route preview',
   })
 
@@ -85,22 +86,10 @@ export default function RoutePreviewScreen() {
 
   const needsLocation = from === MY_LOCATION && !origin
 
-  // Start needs a real walking route, a destination and usable device location.
-  let startBlocker = null
-  if (!destination) startBlocker = 'Choose a destination to start.'
-  else if (!route || status === 'loading') startBlocker = null
-  else if (!walking) startBlocker = 'Live navigation needs a walking route. Use Google Maps instead.'
-  if (!geo.supported) startBlocker = "Your browser can't share its location, so live navigation isn't available."
-  else if (geo.status === 'denied' || geo.permission === 'denied') {
-    startBlocker = 'Allow location access in your browser settings to start navigation.'
-  }
-  const canStart = Boolean(destination && walking && status === 'ready' && !startBlocker)
-
-  function start() {
-    const query = new URLSearchParams({ ...(from && { from }), to, ...(selected && { alt: String(selected) }) })
-    track(EVENTS.NAVIGATION_REQUESTED, { placeId: destinationLoc?.id, detail: 'in_app' })
-    navigate(`/navigate?${query}`, { state: { routeKey: key } })
-  }
+  // Start opens the current route in Google Maps. While a new route loads the
+  // previous one (and its link) is still in state, so wait for 'ready'.
+  const startBlocker = destination ? null : 'Choose a destination to start.'
+  const startUrl = destination && status === 'ready' ? route?.externalUrl : null
 
   return (
     <div className="space-y-4 pb-6">
@@ -145,34 +134,33 @@ export default function RoutePreviewScreen() {
       <RouteOptions routes={routes} selectedIndex={selected} onSelect={(i) => update({ from, to, alt: i ? String(i) : '' })} />
 
       <div className="space-y-2 px-4">
-        <Button
-          icon={Navigation}
-          size="lg"
-          className="w-full"
-          disabled={!canStart}
-          onClick={start}
-          aria-describedby={startBlocker ? 'start-nav-hint' : undefined}
-        >
-          Start navigation
-        </Button>
+        {startUrl ? (
+          <Button
+            href={startUrl}
+            target="_blank"
+            rel="noreferrer"
+            icon={Navigation}
+            size="lg"
+            className="w-full"
+            onClick={() => track(EVENTS.NAVIGATION_REQUESTED, { placeId: destinationLoc?.id, detail: 'google_maps' })}
+          >
+            Start navigation
+          </Button>
+        ) : (
+          <Button
+            icon={Navigation}
+            size="lg"
+            className="w-full"
+            disabled
+            aria-describedby={startBlocker ? 'start-nav-hint' : undefined}
+          >
+            Start navigation
+          </Button>
+        )}
         {startBlocker && (
           <p id="start-nav-hint" className="text-center text-micro text-fg-muted">
             {startBlocker}
           </p>
-        )}
-        {route?.externalUrl && (
-          <Button
-            href={route.externalUrl}
-            target="_blank"
-            rel="noreferrer"
-            variant="ghost"
-            size="md"
-            icon={ExternalLink}
-            className="w-full text-fg-secondary"
-            onClick={() => track(EVENTS.NAVIGATION_REQUESTED, { placeId: destinationLoc?.id, detail: 'google_maps' })}
-          >
-            Open in Google Maps
-          </Button>
         )}
       </div>
 

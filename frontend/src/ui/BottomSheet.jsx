@@ -17,11 +17,15 @@ const RUBBER_BAND = 0.2
  *
  * Positioning (bottom offset, height) is left to `className`. Changing
  * `scrollKey` (e.g. the route) scrolls the content back to the top.
+ * `peekScroll` lets the content scroll while peeked, clipped to the visible
+ * peek area, so actions below the fold stay reachable without expanding.
  */
-export function BottomSheet({ snap, onSnapChange, peekHeight, header, children, className, label = 'Panel', scrollKey }) {
+export function BottomSheet({ snap, onSnapChange, peekHeight, peekScroll = false, header, children, className, label = 'Panel', scrollKey }) {
   const sheetRef = useRef(null)
+  const handleRef = useRef(null)
   const contentRef = useRef(null)
   const [height, setHeight] = useState(0)
+  const [handleHeight, setHandleHeight] = useState(0)
   const y = useMotionValue(0)
   const drag = useRef(null)
   const suppressClick = useRef(false)
@@ -38,9 +42,15 @@ export function BottomSheet({ snap, onSnapChange, peekHeight, header, children, 
 
   useLayoutEffect(() => {
     const el = sheetRef.current
-    const ro = new ResizeObserver(() => setHeight(el.offsetHeight))
+    const handle = handleRef.current
+    const measure = () => {
+      setHeight(el.offsetHeight)
+      setHandleHeight(handle.offsetHeight)
+    }
+    const ro = new ResizeObserver(measure)
     ro.observe(el)
-    setHeight(el.offsetHeight)
+    ro.observe(handle)
+    measure()
     return () => ro.disconnect()
   }, [])
 
@@ -119,6 +129,7 @@ export function BottomSheet({ snap, onSnapChange, peekHeight, header, children, 
       className={cn('flex flex-col rounded-t-sheet bg-surface shadow-sheet', className)}
     >
       <div
+        ref={handleRef}
         onPointerDown={onPointerDown}
         onPointerMove={onPointerMove}
         onPointerUp={onPointerUp}
@@ -130,7 +141,7 @@ export function BottomSheet({ snap, onSnapChange, peekHeight, header, children, 
           onClick={onHandleClick}
           aria-expanded={snap === 'expanded'}
           aria-label={snap === 'expanded' ? `Collapse ${label}` : `Expand ${label}`}
-          className="tap-transparent flex w-full justify-center pb-2 pt-3"
+          className="tap-transparent flex w-full justify-center pb-2 pt-3 max-md:pb-1.5 max-md:pt-2.5"
         >
           <span className="h-1 w-10 rounded-pill bg-line" />
         </button>
@@ -138,7 +149,8 @@ export function BottomSheet({ snap, onSnapChange, peekHeight, header, children, 
       </div>
       <div
         ref={contentRef}
-        className={cn('min-h-0 flex-1 overscroll-contain', snap === 'expanded' ? 'overflow-y-auto' : 'overflow-hidden')}
+        className={cn('min-h-0 flex-1 overscroll-contain', snap === 'expanded' || peekScroll ? 'overflow-y-auto' : 'overflow-hidden')}
+        style={peekScroll && snap !== 'expanded' ? { maxHeight: Math.max(0, peekHeight - handleHeight) } : undefined}
       >
         {children}
       </div>

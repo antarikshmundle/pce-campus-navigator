@@ -33,8 +33,8 @@ export default function SavedScreen() {
 
   const open = (entry) =>
     navigate(entry.kind === 'campus' ? `/place/${entry.location.id}` : `/nearby/place/${encodeURIComponent(entry.place.key)}`)
-  // Campus: no device position is known off the map screens; the route
-  // screen asks for a start. Off-campus: directions in Google Maps.
+  // Campus: no `from`, so the route screen starts from the current location
+  // (manual start still selectable). Off-campus: directions in Google Maps.
   function route(entry) {
     if (entry.kind === 'campus') navigate(`/route?to=${entry.location.id}`)
     else window.open(navigateUrl(entry.place), '_blank', 'noopener,noreferrer')

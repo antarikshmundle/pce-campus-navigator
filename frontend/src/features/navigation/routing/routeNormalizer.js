@@ -88,8 +88,10 @@ export function normalizeStep(step) {
   }
 }
 
+/** Google Maps walking link. Without `from`, Google Maps starts from the device's live location. */
 export function externalWalkingUrl(from, to) {
-  return `https://www.google.com/maps/dir/?api=1&origin=${from.lat},${from.lng}&destination=${to.lat},${to.lng}&travelmode=walking`
+  const origin = from ? `&origin=${from.lat},${from.lng}` : ''
+  return `https://www.google.com/maps/dir/?api=1${origin}&destination=${to.lat},${to.lng}&travelmode=walking`
 }
 
 /** Dotted joins where the mapped path stops short of the actual places. */

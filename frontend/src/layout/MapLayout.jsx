@@ -72,6 +72,7 @@ function MapLayoutFrame() {
   const navigate = useNavigate()
   const { pathname } = useLocation()
   const isExplore = Boolean(useMatch({ path: '/', end: true }))
+  const isRoutePreview = Boolean(useMatch('/route'))
   const geo = useGeolocation()
 
   const [view, setView] = useState(DEFAULT_MAP_VIEW)
@@ -126,19 +127,20 @@ function MapLayoutFrame() {
   }, [discovery.category, discovery.places, map.fitCampus, map.fitCoords, map.focusLocation])
 
   // React to locate outcomes once per transition (position updates only move the dot).
-  // Navigation owns its own GPS messaging and camera while it tracks.
+  // Navigation owns its own GPS messaging and camera while it tracks; Route
+  // Preview explains location state inline and frames the route itself.
   const prevGeoStatus = useRef(geo.status)
   useEffect(() => {
     const prev = prevGeoStatus.current
     prevGeoStatus.current = geo.status
-    if (prev === geo.status || geo.tracking) return
+    if (prev === geo.status || geo.tracking || isRoutePreview) return
     if (geo.status === 'denied') showNotice('Location access is blocked. Allow it in your browser settings.')
     else if (geo.status === 'unavailable') showNotice("Couldn't determine your location. Tap to retry.")
     else if (geo.status === 'ready') {
       if (origin) map.focusLocation(origin, { zoom: mapConfig.areaZoom })
       else showNotice(OFF_CAMPUS)
     }
-  }, [geo.status, geo.tracking, origin, map.focusLocation, showNotice])
+  }, [geo.status, geo.tracking, isRoutePreview, origin, map.focusLocation, showNotice])
 
   function handleLocate() {
     if (immersive && view.onLocate) view.onLocate()

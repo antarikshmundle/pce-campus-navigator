@@ -6,9 +6,13 @@ export const MY_LOCATION = 'me'
 /**
  * Origin / destination pickers. Values are 'me' (device location), a
  * location id as string, or '' (unset). Native selects: accessible and
- * thumb-friendly on mobile.
+ * thumb-friendly on mobile (16px text, so iOS doesn't zoom on focus).
+ *
+ * "My location" is always offered as the start, even before a GPS fix;
+ * `myLocationNote` (e.g. 'locating…') explains its current state.
+ * `originRef` lets the screen focus the start picker (manual fallback).
  */
-export function RouteEndpoints({ locations, from, to, canUseMyLocation, onChange, onSwap }) {
+export function RouteEndpoints({ locations, from, to, myLocationNote, originRef, onChange, onSwap }) {
   return (
     <div className="flex items-center gap-2 px-4">
       <div className="min-w-0 flex-1 space-y-2">
@@ -20,8 +24,9 @@ export function RouteEndpoints({ locations, from, to, canUseMyLocation, onChange
           onChange={(v) => onChange({ from: v, to })}
           locations={locations}
           disabledId={to}
-          myLocation={canUseMyLocation || from === MY_LOCATION}
-          myLocationUnavailable={!canUseMyLocation}
+          myLocationNote={myLocationNote}
+          selectRef={originRef}
+          withMyLocation
         />
         <EndpointSelect
           label="Destination"
@@ -45,23 +50,22 @@ export function RouteEndpoints({ locations, from, to, canUseMyLocation, onChange
   )
 }
 
-function EndpointSelect({ label, icon: Icon, value, placeholder, onChange, locations, disabledId, myLocation, myLocationUnavailable }) {
+function EndpointSelect({ label, icon: Icon, value, placeholder, onChange, locations, disabledId, withMyLocation, myLocationNote, selectRef }) {
   return (
     <label className="relative block">
       <span className="sr-only">{label}</span>
       <Icon size={16} strokeWidth={2.25} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-navy" aria-hidden />
       <select
+        ref={selectRef}
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="h-12 w-full appearance-none truncate rounded-field bg-surface-alt pl-9 pr-9 text-body text-fg outline-none focus-visible:ring-2 focus-visible:ring-accent"
+        className="h-12 w-full appearance-none truncate rounded-field bg-surface-alt pl-9 pr-9 text-body-lg text-fg outline-none focus-visible:ring-2 focus-visible:ring-accent"
       >
         <option value="" disabled>
           {placeholder}
         </option>
-        {myLocation && (
-          <option value={MY_LOCATION} disabled={myLocationUnavailable}>
-            {myLocationUnavailable ? 'My location (unavailable)' : 'My location'}
-          </option>
+        {withMyLocation && (
+          <option value={MY_LOCATION}>{myLocationNote ? `My current location (${myLocationNote})` : 'My current location'}</option>
         )}
         {locations.map((l) => (
           <option key={l.id} value={String(l.id)} disabled={String(l.id) === disabledId}>

@@ -18,7 +18,7 @@ const RUBBER_BAND = 0.2
  * Positioning (bottom offset, height) is left to `className`. Changing
  * `scrollKey` (e.g. the route) scrolls the content back to the top.
  * `peekScroll` lets the content scroll while peeked, clipped to the visible
- * peek area, so actions below the fold stay reachable without expanding.
+ * peek area (a sticky footer pins to its bottom); scrolling it expands the sheet.
  */
 export function BottomSheet({ snap, onSnapChange, peekHeight, peekScroll = false, header, children, className, label = 'Panel', scrollKey }) {
   const sheetRef = useRef(null)
@@ -57,6 +57,16 @@ export function BottomSheet({ snap, onSnapChange, peekHeight, peekScroll = false
   useEffect(() => {
     if (contentRef.current) contentRef.current.scrollTop = 0
   }, [scrollKey])
+
+  // peekScroll: back at peek, show the top of the content again…
+  useEffect(() => {
+    if (peekScroll && snap === 'peek' && contentRef.current) contentRef.current.scrollTop = 0
+  }, [peekScroll, snap])
+  // …and scrolling the peeked content expands the sheet instead of scrolling
+  // a small inner area (no nested-scroll trap).
+  function onContentScroll(e) {
+    if (peekScroll && snap !== 'expanded' && e.currentTarget.scrollTop > 4) onSnapChange('expanded')
+  }
 
   const peekY = Math.max(0, height - peekHeight)
   const targetFor = (s) => (s === 'expanded' ? 0 : peekY)
@@ -149,6 +159,7 @@ export function BottomSheet({ snap, onSnapChange, peekHeight, peekScroll = false
       </div>
       <div
         ref={contentRef}
+        onScroll={onContentScroll}
         className={cn('min-h-0 flex-1 overscroll-contain', snap === 'expanded' || peekScroll ? 'overflow-y-auto' : 'overflow-hidden')}
         style={peekScroll && snap !== 'expanded' ? { maxHeight: Math.max(0, peekHeight - handleHeight) } : undefined}
       >

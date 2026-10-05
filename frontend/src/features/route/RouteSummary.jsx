@@ -8,9 +8,13 @@ import { cn } from '../../utils/cn.js'
 // Gaps smaller than this between a place and the mapped path aren't worth a note.
 const GAP_NOTE_METERS = 30
 
-/** Time / distance headline, labelled as a Google walking route or a direct-line estimate. */
-export function RouteSummary({ status, result, route, destinationName, onRetry }) {
+/**
+ * Time / distance headline, labelled as a Google walking route or a direct-line estimate.
+ * `headline={false}`: only the notes (the time/distance is shown elsewhere, e.g. the mobile Start bar).
+ */
+export function RouteSummary({ status, result, route, destinationName, onRetry, headline = true }) {
   if (status === 'loading' && !route) {
+    if (!headline) return null
     return (
       <div className="space-y-2 px-4" aria-busy="true">
         <Skeleton className="h-8 w-32" />
@@ -33,16 +37,18 @@ export function RouteSummary({ status, result, route, destinationName, onRetry }
 
   return (
     <div className="px-4" aria-live="polite">
-      <p className="flex items-baseline gap-2">
-        <span className="text-heading-lg text-fg">{formatDuration(route.durationSeconds)}</span>
-        <span className="text-body text-fg-secondary">
-          walk · {formatDistance(route.distanceMeters)}
-          {!walking && ' direct'}
-        </span>
-      </p>
+      {headline && (
+        <p className="flex items-baseline gap-2">
+          <span className="text-heading-lg text-fg">{formatDuration(route.durationSeconds)}</span>
+          <span className="text-body text-fg-secondary">
+            walk · {formatDistance(route.distanceMeters)}
+            {!walking && ' direct'}
+          </span>
+        </p>
+      )}
 
       {walking ? (
-        <p className="mt-1.5 flex gap-1.5 text-caption text-fg-secondary">
+        <p className={cn('flex gap-1.5 text-caption text-fg-secondary', headline && 'mt-1.5')}>
           <Footprints size={14} className="mt-px shrink-0 text-fg-muted" aria-hidden />
           <span>
             Google walking route. It follows mapped roads and paths, so it may not include every campus shortcut.
@@ -51,7 +57,7 @@ export function RouteSummary({ status, result, route, destinationName, onRetry }
           </span>
         </p>
       ) : (
-        <div className="mt-2 rounded-control bg-warning/10 px-2.5 py-2 text-caption text-fg">
+        <div className={cn('rounded-control bg-warning/10 px-2.5 py-2 text-caption text-fg', headline && 'mt-2')}>
           <p className="flex gap-1.5">
             <Info size={14} className="mt-px shrink-0 text-warning" aria-hidden />
             <span>

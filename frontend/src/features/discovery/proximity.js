@@ -15,6 +15,16 @@ export function sortByDistance(locations, origin) {
     .sort((a, b) => a.meters - b.meters || a.location.displayName.localeCompare(b.location.displayName))
 }
 
+/** { location, meters } of the place closest to `coords`, or null. One pass, no sort (runs per GPS fix). */
+export function nearestPlace(locations, coords) {
+  let best = null
+  for (const location of locations) {
+    const meters = distanceMeters(coords, location.coords)
+    if (!best || meters < best.meters) best = { location, meters }
+  }
+  return best
+}
+
 /** The `limit` places closest to `place`, excluding itself. */
 export function nearbyPlaces(place, locations, { limit = 5 } = {}) {
   return sortByDistance(
